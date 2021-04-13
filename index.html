@@ -1,0 +1,43 @@
+<!--
+ * @Descripttion: 
+ * @version: v1.1
+ * @Author: Sinorock
+ * @Date: 2018-12-27 15:24:43
+ * @LastEditors  : Mr.What
+ * @LastEditTime : 2020-01-03 11:29:58
+ -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>化工企业安全生产管理云平台 | Sinorock - 中石科技 </title>
+  <% if (process.env.NODE_ENV === 'production') { %>
+  <!-- 生产环境 -->
+  <script>
+    document.write('<script src="./config/index.js?t=' + new Date().getTime() + '"><\/script>')
+
+  </script>
+  <% }else { %>
+  <!-- 开发环境 -->
+  <link rel="shortcut icon" type="image/x-icon" href="./static/img/favicon.ico">
+  <script src="./static/config/index.js"></script>
+  <!--<script src="./static/plugins/mock-1.0.0-beta3/mock-min.js"></script>-->
+  <script src="./static/plugins/echarts-3.8.5/echarts.min.js"></script>
+  <script src="./static/plugins/echarts-3.8.5/echarts-liquidfill.min.js"></script>
+  <script src="./static/plugins/umeditor/third-party/jquery.min.js"></script>
+  <script src="./static/plugins/umeditor/umeditor.config.js"></script>
+  <script src="./static/plugins/umeditor/umeditor.min.js"></script>
+  <script src="./static/plugins/umeditor/lang/zh-cn/zh-cn.js"></script>
+  <% } %>
+</head>
+
+<body>
+  <div id="app"></div>
+</body>
+<script type="text/javascript" src="http://192.168.0.215:8080/zhongshi_web/include-lib-zs.js"
+  libpath="http://192.168.0.215:8080/zhongshi_web/" include="jquery,babel,vue,cesium-hx3d"></script>
+
+</html>

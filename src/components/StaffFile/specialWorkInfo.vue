@@ -1,0 +1,160 @@
+<template>
+  <div class="special-work-info">
+    <el-table :data="dataList" border height="478px" v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
+      <el-table-column type="selection" header-align="center" align="center" width="50">
+      </el-table-column>
+      <el-table-column prop="type" header-align="center" align="center" :show-overflow-tooltip="true" width="100" label="特殊作业类型">
+      </el-table-column>
+      <el-table-column prop="reponsible" header-align="center" :show-overflow-tooltip="true" align="center" label="负责人">
+      </el-table-column>
+      <el-table-column prop="jhr" header-align="center" align="center" :show-overflow-tooltip="true" label="监护人">
+      </el-table-column>
+      <el-table-column prop="workLimit" header-align="center" align="center" :show-overflow-tooltip="true" label="作业时限">
+      </el-table-column>
+      <el-table-column prop="place" header-align="center" :show-overflow-tooltip="true" align="center" label="地点">
+      </el-table-column>
+      <el-table-column prop="unit" header-align="center" :show-overflow-tooltip="true" align="center" label="单位">
+      </el-table-column>
+      <el-table-column prop="status" header-align="center" :show-overflow-tooltip="true" align="center" label="状态">
+      </el-table-column>
+    </el-table>
+    <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page="pageIndex" :page-sizes="[10, 20, 50, 100]" :page-size="pageSize" :total="totalPage" layout="total, sizes, prev, pager, next, jumper">
+    </el-pagination>
+  </div>
+</template>
+
+<script>
+// import {configList} from '@/api/sys/config'
+export default {
+  props: {
+    staffInfo: {
+      type: Object
+    }
+  },
+  data () {
+    return {
+      dataForm: {
+        paramKey: ''
+      },
+      dataList: [
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '高处作业', reponsible: '许逸', jhr: '严林芳', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '实施' },
+        { type: '动火作业', reponsible: '张培信', jhr: '俞盛', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' },
+        { type: '动火作业', reponsible: '张培信', jhr: '俞盛', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' },
+        { type: '动火作业', reponsible: '张培信', jhr: '俞盛', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' },
+        { type: '动火作业', reponsible: '张培信', jhr: '俞盛', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' },
+        { type: '动火作业', reponsible: '张培信', jhr: '俞盛', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' },
+        { type: '吊装作业', reponsible: '张正兴', jhr: '姚志强', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' },
+        { type: '吊装作业', reponsible: '张正兴', jhr: '姚志强', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' },
+        { type: '吊装作业', reponsible: '张正兴', jhr: '姚志强', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' },
+        { type: '吊装作业', reponsible: '张正兴', jhr: '姚志强', workLimit: '2019-10-12', place: 'EPS事业部', unit: '反应一车间（甲类）', status: '结束' }
+      ],
+      pageIndex: 1,
+      pageSize: 10,
+      totalPage: 0,
+      dataListLoading: false,
+      dataListSelections: [],
+      addOrUpdateVisible: false
+    }
+  },
+  components: {},
+  activated () {
+    this.getDataList()
+  },
+  methods: {
+    init (info) {
+      console.log('==========', info)
+      this.$nextTick(() => {
+        this.dataList.forEach(item => {
+          item.name = info.name
+          item.gh = info.gh
+          item.bm = info.dept
+        })
+      })
+    },
+    // 获取数据列表
+    getDataList () {
+      this.dataListLoading = false
+      this.totalPage = this.dataList.length
+      // this.dataListLoading = true
+      // configList({
+      //   'page': this.pageIndex,
+      //   'limit': this.pageSize,
+      //   'paramKey': this.dataForm.paramKey
+      // }).then(({data}) => {
+      //   if (data && data.code === 0) {
+      //     this.dataList = data.page.list
+      //     this.totalPage = data.page.count
+      //   } else {
+      //     this.dataList = []
+      //     this.totalPage = 0
+      //   }
+      //   this.dataListLoading = false
+      // }).catch((err) => {
+      //   console.log(err)
+      //   this.$message.error('未知异常！请联系管理员')
+      //   this.dataListLoading = false
+      // })
+    },
+    // 每页数
+    sizeChangeHandle (val) {
+      this.pageSize = val
+      this.pageIndex = 1
+      this.getDataList()
+    },
+    // 当前页
+    currentChangeHandle (val) {
+      this.pageIndex = val
+      this.getDataList()
+    },
+    // 多选
+    selectionChangeHandle (val) {
+      this.dataListSelections = val
+    },
+    // 新增 / 修改
+    addOrUpdateHandle (id) {
+      this.addOrUpdateVisible = true
+      this.$nextTick(() => {
+        this.$refs.addOrUpdate.init(id)
+      })
+    },
+    // 删除
+    deleteHandle (id) {
+      var ids = id ? [id] : this.dataListSelections.map(item => {
+        return item.id
+      })
+      this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$http({
+          url: this.$http.adornUrl('/sys/config/delete'),
+          method: 'post',
+          data: this.$http.adornData(ids, false)
+        }).then(({ data }) => {
+          if (data && data.code === 0) {
+            this.getDataList()
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1500,
+              onClose: () => {
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      }).catch(() => { })
+    }
+  }
+}
+</script>

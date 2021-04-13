@@ -1,0 +1,223 @@
+<!--风险管控清单 - 全景地图table-->
+<template>
+  <el-dialog :title="'风险管控清单-'+queryConditions.businessName" class="identification-map" :close-on-click-modal="false" :visible.sync="visible" append-to-body width="900px">
+    <div>
+      <el-table :data="dataList" height="450" border ref="multipleTable" tooltip-effect="dark" @cell-click="cellClick" v-loading="dataListLoading" class="lecTable" @selection-change="selectionChangeHandle" style="width: 100%;">
+        <el-table-column type="index" width="50" label="序号">
+        </el-table-column>
+        <el-table-column prop="businessName" min-width="120" :show-overflow-tooltip="true" label="风险点名称">
+        </el-table-column>
+        <el-table-column prop="rangeType" min-width="150" :show-overflow-tooltip="true" label="风险点类型">
+          <template slot-scope="scope">{{scope.row.rangeType | matchType(rangeTypeList)}}</template>
+        </el-table-column>
+        <el-table-column min-width="130" :show-overflow-tooltip="true" label="可能发生的风险因素">
+          <template slot-scope="scope">{{handleDanger(scope.row.factorList) }}</template>
+        </el-table-column>
+        <el-table-column min-width="130" :show-overflow-tooltip="true" label="可能发生的风险类型">
+          <template slot-scope="scope">
+            <span>{{handle(scope.row.factorList)}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="riskDegree" width="100" header-align="center" align="center" :show-overflow-tooltip="true" label="固有风险等级">
+
+          <template slot-scope="scope">
+            <el-tag size="small" style="color:#fff" color="#E63031" v-if="scope.row.riskDegree === 'A'">{{scope.row.riskDegree}}</el-tag>
+            <el-tag size="small" style="color:#fff" color="#E6A23C" v-if="scope.row.riskDegree === 'B'">{{scope.row.riskDegree}}</el-tag>
+            <el-tag size="small" style="color:#fff" color="#E9ED06" v-if="scope.row.riskDegree === 'C'">{{scope.row.riskDegree}}</el-tag>
+            <el-tag size="small" style="color:#fff" color="#2C78BB" v-if="scope.row.riskDegree === 'D'">{{scope.row.riskDegree}}</el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="管控措施" header-align="center">
+          <el-table-column :show-overflow-tooltip="true" prop="gloryMeasures" label="工程技术措施" width="100">
+          </el-table-column>
+          <el-table-column :show-overflow-tooltip="true" prop="manageMeasures" label="管理措施" width="80">
+          </el-table-column>
+          <el-table-column :show-overflow-tooltip="true" prop="trainMeasures" label="培训教育措施" width="100">
+          </el-table-column>
+          <el-table-column :show-overflow-tooltip="true" prop="selfMeasures" label="个体防护措施" width="100">
+          </el-table-column>
+          <el-table-column :show-overflow-tooltip="true" prop="emergencyMeasures" label="应急处置措施" width="100">
+          </el-table-column>
+        </el-table-column>
+        <el-table-column min-width="150" :show-overflow-tooltip="true" label="管控层级">
+          <template slot-scope="scope">
+            <span v-if="scope.row.riskDegree === 'A'">公司级</span>
+            <span v-if="scope.row.riskDegree === 'B'">事业部级</span>
+            <span v-if="scope.row.riskDegree === 'C'">部门级</span>
+            <span v-if="scope.row.riskDegree === 'D'">班组,岗位级</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="liableUnit" min-width="150" :show-overflow-tooltip="true" label="责任部门"></el-table-column>
+        <el-table-column prop="liablePerson" min-width="150" :show-overflow-tooltip="true" label="责任人"></el-table-column>
+        <!--<el-table-column label="操作" width="100">-->
+          <!--<template slot-scope="scope">-->
+            <!--<el-button type="text" @click.stop="addOrUpdateHandle(scope.row)">-->
+              <!--管控-->
+            <!--</el-button>-->
+          <!--</template>-->
+        <!--</el-table-column>-->
+
+      </el-table>
+    </div>
+    <span slot="footer" class="dialog-footer">
+      <!--<el-button @click="visible = false">取消</el-button>-->
+      <el-button type="primary" @click="visible = false">确定</el-button>
+    </span>
+  </el-dialog>
+</template>
+<script>
+import { getLabels } from '@/api/common/sys'
+import { facilitiesList } from '@/api/risk/analysis'
+
+export default {
+  data () {
+    return {
+      visible: false,
+      colorIndex: '0',
+      dataList: [],
+      rangeTypeList: [],
+      dataListLoading: false,
+      pageSize: 10,
+      pageIndex: 1,
+      totalPage: 0,
+      detailVisible: false,
+      addOrUpdateVisible: false, // 弹框显示
+      degreeColor: ['#E63031', '#E6A23C', '#2C78BB', '#E6D23C']
+    }
+  },
+  components: {
+  },
+  props: {
+    queryConditions: {
+      type: Object
+    }
+  },
+  created () {
+    this.getDataList()
+    this.getRiskPoinType()
+  },
+  methods: {
+    // 从字典表获取风险点类型
+    getRiskPoinType () {
+      getLabels({
+        type: 'RANGE_TYPE'
+      }).then(({ data }) => {
+        if (data && data.code === 0) {
+          console.log('lec', data.list)
+          this.rangeTypeList = data.list
+        }
+      })
+    },
+    // 处理数据
+    handle (val) {
+      if (val.length > 0) {
+        let factorMainNameList = []
+        val.map(item => {
+          if (factorMainNameList.indexOf(item.factorMainName) === -1) {
+            factorMainNameList.push(item.factorMainName)
+          }
+        })
+        return factorMainNameList.join(',')
+      } else {
+        return '暂无'
+      }
+    },
+    handleDanger (val) {
+      if (val.length > 0) {
+        let factorDangerList = []
+        val.map(item => {
+          if (factorDangerList.indexOf(item.factorDangerList) === -1) {
+            factorDangerList.push(item.factorDanger)
+          }
+        })
+        factorDangerList = factorDangerList.map((item, index) => {
+          item = (index + 1) + '.' + item
+          return item
+        })
+        return factorDangerList.join(';')
+      } else {
+        return '暂无'
+      }
+    },
+    // 获取表格内容
+    getDataList () {
+      this.dataListLoading = true
+      facilitiesList({
+        'businessName': '',
+        'zoneCode': this.queryConditions.zoneCode,
+        'evaluateStatus': '1',
+        'sortName': '1',
+        'controlStatus': '1'
+      }).then(({ data }) => {
+        if (data && data.code === 0) {
+          console.log('===================', data.page.list)
+          this.dataListLoading = false
+          this.dataList = data.page.list
+          this.totalPage = data.page.count
+        }
+        this.visible = true
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error('未知异常！请联系管理员')
+        this.dataListLoading = false
+        this.visible = true
+      })
+    },
+    cellClass ({ row, column, rowIndex, columnIndex }) {
+      console.log({ row, column, rowIndex, columnIndex })
+    },
+    // 新增 / 修改
+    addOrUpdateHandle (id) {
+      this.addOrUpdateVisible = true
+      this.$nextTick(() => {
+        this.$refs.addOrUpdate.init(id)
+      })
+    },
+    // 点击一行选中
+    cellClick (row) {
+      this.$refs.multipleTable.toggleRowSelection(row)
+    },
+    // 每页数
+    sizeChangeHandle (val) {
+      this.pageSize = val
+      this.pageIndex = 1
+      this.getDataList()
+    },
+    // 当前页
+    currentChangeHandle (val) {
+      this.pageIndex = val
+      this.getDataList()
+    },
+    // 多选
+    selectionChangeHandle (val) {
+      this.dataListSelections = val
+    }
+  },
+  filters: {
+    matchType (type, value) {
+      let typeName = ''
+      value.map(item => {
+        if (item.label === type) {
+          typeName = item.value
+        }
+      })
+      return typeName
+    }
+  }
+}
+</script>
+<style lang="scss">
+.identification-map {
+  .el-tab-pane {
+    height: 100%;
+  }
+  .el-table {
+    height: calc(100% - 56px);
+    overflow: auto;
+  }
+  .el-table thead.is-group th {
+    background: linear-gradient(0deg, #ced1d6, #e4e7ea);
+  }
+}
+</style>
